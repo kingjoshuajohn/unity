@@ -7,32 +7,60 @@ public class GridGenerator : MonoBehaviour {
 
     public Transform tilesParent;
     public GameObject prefab;
-    public int size;
 
-    public int width;
+    public int tileSize;
+
     public int height;
+    public int width;
+
+    private float offsetX, offsetZ;
+
+    public bool addPadding = false;
 
     public List<List<Tile>> GenerateGrid()
     {
-        List<List<Tile>> outer = new List<List<Tile>>();
-        
 
-        for (int i = 0; i < width; i++)
+        float radius = tileSize / 2;
+
+        float unitLength = (addPadding) ? (radius / (Mathf.Sqrt(3) / 2)) : radius;
+
+        offsetX = unitLength * Mathf.Sqrt(3);
+        offsetZ = unitLength * 1.5f;
+
+        List<List<Tile>> outer = new List<List<Tile>>();
+        for (int row = 0; row < height; row++)
         {
             List<Tile> inner = new List<Tile>();
-            for (int j = 0; j < height; j++)
+            for (int col = 0; col < width; col++)
             {
-                var square = Instantiate(prefab);
-
-                square.transform.position = new Vector3(i * size, 0, j * size);
-                inner.Add(square.GetComponent<Tile>());
-
-                square.transform.parent = tilesParent;
+                GameObject hexagon = Instantiate(prefab);
+                hexagon.transform.position = hexPos(row, col);
+                hexagon.transform.parent = tilesParent;
+                hexagon.name = "row: " + row + " col: " + col;
+                inner.Add(hexagon.GetComponent<Tile>());
             }
             outer.Add(inner);
         }
+
         assignNeighbors(outer);
         return outer;
+    }
+
+    private Vector3 hexPos(int x, int z)
+    {
+        Vector3 position = Vector3.zero;
+
+        if( z % 2 == 0)
+        {
+            position.x = x * offsetX;
+            position.z = z * offsetZ;
+        }
+        else
+        {
+            position.x = (x + 0.5f) * offsetX;
+            position.z = z * offsetZ;
+        }
+        return position;
     }
 
     private void assignNeighbors(List<List<Tile>> tiles)
@@ -44,7 +72,7 @@ public class GridGenerator : MonoBehaviour {
             {
                 try
                 {
-                    Tile neighbor = tiles[x][y + 1];
+                    Tile neighbor = tiles[x+1][y + 1];
                     tiles[x][y].tile1 = neighbor;
                 }
                 catch { }
@@ -56,14 +84,26 @@ public class GridGenerator : MonoBehaviour {
                 catch { }
                 try
                 {
-                    Tile neighbor = tiles[x][y - 1];
+                    Tile neighbor = tiles[x + 1][y - 1];
                     tiles[x][y].tile3 = neighbor;
                 }
                 catch { }
                 try
                 {
-                    Tile neighbor = tiles[x - 1][y];
+                    Tile neighbor = tiles[x][y - 1];
                     tiles[x][y].tile4 = neighbor;
+                }
+                catch { }
+                try
+                {
+                    Tile neighbor = tiles[x - 1][y];
+                    tiles[x][y].tile5 = neighbor;
+                }
+                catch { }
+                try
+                {
+                    Tile neighbor = tiles[x][y + 1];
+                    tiles[x][y].tile6 = neighbor;
                 }
                 catch { }
             }

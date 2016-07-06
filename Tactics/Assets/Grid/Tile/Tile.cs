@@ -10,6 +10,10 @@ public class Tile : MonoBehaviour {
     public Tile tile3;
 
     public Tile tile4;
+
+    public Tile tile5;
+
+    public Tile tile6;
     
 
     // Use this for initialization
