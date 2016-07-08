@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Grid : MonoBehaviour {
 
-	// Use this for initialization
-	void Start () {
+
+    public List<Tile> grid;
+    
+
+    // Use this for initialization
+    void Start () {
 	
 	}
 	

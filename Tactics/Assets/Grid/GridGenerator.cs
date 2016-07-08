@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 
 [ExecuteInEditMode()]
-public class GridGenerator : MonoBehaviour {
+public class GridGenerator : MonoBehaviour
+{
 
     public Transform tilesParent;
     public GameObject prefab;
@@ -13,11 +14,13 @@ public class GridGenerator : MonoBehaviour {
     public int height;
     public int width;
 
+    private float terrainHeight = 2.0f;
+
     private float offsetX, offsetZ;
 
     public bool addPadding = false;
 
-    public List<List<Tile>> GenerateGrid()
+    public List<Tile> GenerateGrid()
     {
 
         float radius = tileSize / 2;
@@ -43,14 +46,25 @@ public class GridGenerator : MonoBehaviour {
         }
 
         assignNeighbors(outer);
-        return outer;
+        List<Tile> tiles = new List<Tile>();
+        foreach(List<Tile> list in outer)
+        {
+            foreach(Tile tile in list)
+            {
+                tiles.Add(tile);
+            }
+        }
+        this.gameObject.AddComponent<Grid>();
+        this.gameObject.GetComponent<Grid>().grid = tiles;
+        return tiles;
     }
 
     private Vector3 hexPos(int x, int z)
     {
         Vector3 position = Vector3.zero;
+        position.y = terrainHeight;
 
-        if( z % 2 == 0)
+        if (z % 2 == 0)
         {
             position.x = x * offsetX;
             position.z = z * offsetZ;
@@ -65,48 +79,88 @@ public class GridGenerator : MonoBehaviour {
 
     private void assignNeighbors(List<List<Tile>> tiles)
     {
-        for(int x = 0; x < tiles.Count; x++)
+        for (int x = 0; x < tiles.Count; x++)
         {
             List<Tile> list = tiles[x];
-            for(int y =0; y < list.Count; y++)
+            for (int z = 0; z < list.Count; z++)
             {
-                try
+                if (z % 2 == 0)
                 {
-                    Tile neighbor = tiles[x+1][y + 1];
-                    tiles[x][y].tile1 = neighbor;
+                    assignEvenNeighbors(tiles, x, z);
                 }
-                catch { }
-                try
+                else
                 {
-                    Tile neighbor = tiles[x + 1][y];
-                    tiles[x][y].tile2 = neighbor;
+                    assignOddNeighbors(tiles, x, z);
                 }
-                catch { }
-                try
-                {
-                    Tile neighbor = tiles[x + 1][y - 1];
-                    tiles[x][y].tile3 = neighbor;
-                }
-                catch { }
-                try
-                {
-                    Tile neighbor = tiles[x][y - 1];
-                    tiles[x][y].tile4 = neighbor;
-                }
-                catch { }
-                try
-                {
-                    Tile neighbor = tiles[x - 1][y];
-                    tiles[x][y].tile5 = neighbor;
-                }
-                catch { }
-                try
-                {
-                    Tile neighbor = tiles[x][y + 1];
-                    tiles[x][y].tile6 = neighbor;
-                }
-                catch { }
             }
         }
+    }
+
+    private void assignEvenNeighbors(List<List<Tile>> tiles, int x, int z)
+    {
+        try
+        {
+            tiles[x][z].tile1 = tiles[x][z + 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile2 = tiles[x + 1][z];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile3 = tiles[x][z - 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile4 = tiles[x - 1][z - 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile5 = tiles[x - 1][z];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile6 = tiles[x - 1][z + 1];
+        }
+        catch { }
+    }
+
+    private void assignOddNeighbors(List<List<Tile>> tiles, int x, int z)
+    {
+        try
+        {
+            tiles[x][z].tile1 = tiles[x + 1][z + 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile2 = tiles[x + 1][z];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile3 = tiles[x + 1][z - 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile4 = tiles[x][z - 1];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile5 = tiles[x - 1][z];
+        }
+        catch { }
+        try
+        {
+            tiles[x][z].tile6 = tiles[x][z + 1];
+        }
+        catch { }
     }
 }
